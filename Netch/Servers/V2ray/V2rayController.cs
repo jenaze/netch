@@ -8,17 +8,17 @@ namespace Netch.Servers;
 
 public class V2rayController : Guard, IServerController
 {
-    public V2rayController() : base("v2ray-sn.exe")
+    public V2rayController() : base("xray.exe") // Changed from v2ray-sn.exe to xray.exe
     {
         //if (!Global.Settings.V2RayConfig.XrayCone)
         //    Instance.StartInfo.Environment["XRAY_CONE_DISABLED"] = "true";
     }
 
-    protected override IEnumerable<string> StartedKeywords => new[] { "started" };
+    protected override IEnumerable<string> StartedKeywords => new[] { "Xray", "started" }; // Adjusted for typical Xray startup message
 
-    protected override IEnumerable<string> FailedKeywords => new[] { "config file not readable", "failed to" };
+    protected override IEnumerable<string> FailedKeywords => new[] { "config file not readable", "failed to" }; // These should be general enough
 
-    public override string Name => "V2Ray (SagerNet)";
+    public override string Name => "Xray"; // Updated name
 
     public ushort? Socks5LocalPort { get; set; }
 

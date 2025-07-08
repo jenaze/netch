@@ -197,4 +197,65 @@ public class Sockopt
     public bool tcpFastOpen { get; set; }
 }
 
+public class XMuxSettings
+{
+    public object maxConcurrency { get; set; } // int or string range
+    public object maxConnections { get; set; } // int or string range
+    public object cMaxReuseTimes { get; set; } // int or string range
+    public object hMaxRequestTimes { get; set; } // int or string range
+    public object hMaxReusableSecs { get; set; } // int or string range
+    public int? hKeepAlivePeriod { get; set; }
+}
+
+public class XHttpSettings
+{
+    public string path { get; set; }
+    public string[] host { get; set; }
+    public string method { get; set; } // XHTTP mode: "packet-up", "stream-up", "stream-one"
+
+    // 'extra' object fields
+    public string xPaddingBytes { get; set; }
+    public bool? noGRPCHeader { get; set; }
+    public bool? noSSEHeader { get; set; }
+
+    // packet-up specific
+    public object scMaxEachPostBytes { get; set; }
+    public object scMinPostsIntervalMs { get; set; }
+    public int? scMaxBufferedPosts { get; set; }
+
+    // stream-up specific
+    public object scStreamUpServerSecs { get; set; }
+
+    public XMuxSettings xmux { get; set; }
+    // downloadSettings is complex, will not include in this iteration
+}
+
+// Modify StreamSettings to include XHttpSettings
+public class StreamSettings
+{
+    public string network { get; set; }
+
+    public string security { get; set; }
+
+    public TlsSettings tlsSettings { get; set; }
+
+    public TcpSettings tcpSettings { get; set; }
+
+    public KcpSettings kcpSettings { get; set; }
+
+    public WsSettings wsSettings { get; set; }
+
+    public HttpSettings httpSettings { get; set; }
+
+    public QuicSettings quicSettings { get; set; }
+
+    public TlsSettings xtlsSettings { get; set; } // Renamed from TlsSettings to avoid conflict, used for XTLS
+
+    public GrpcSettings grpcSettings { get; set; }
+
+    public Sockopt sockopt { get; set; }
+
+    public XHttpSettings xhttpSettings { get; set; } // Added for XHTTP
+}
+
 #endregion
