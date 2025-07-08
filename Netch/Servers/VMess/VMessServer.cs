@@ -100,6 +100,54 @@ public class VMessServer : Server
     public bool? UseMux { get; set; }
 
     public string? ServerName { get; set; } = string.Empty;
+
+    #region XHTTP Settings
+    /// <summary>
+    /// XHTTP Mode when TransferProtocol is "http".
+    /// Modes: "packet-up", "stream-up", "stream-one", or "auto" (Netch client logic to pick one).
+    /// Empty or null means standard HTTP transport.
+    /// </summary>
+    public string? XHTTPMode { get; set; }
+
+    public XHTTPSettingsModel? XHTTPSpecificSettings { get; set; } = new(); // Initialize for easier handling
+    #endregion
+}
+
+public class XHTTPSettingsModel
+{
+    public string? PaddingBytes { get; set; } = "100-1000";
+
+    public bool NoGRPCHeader { get; set; } = false;
+
+    public bool NoSSEHeader { get; set; } = false;
+
+    // packet-up specific
+    public string? SCMaxEachPostBytes { get; set; } // Allow string for range "500000-1000000"
+
+    public string? SCMinPostsIntervalMs { get; set; } // Allow string for range "10-50"
+
+    public int? SCMaxBufferedPosts { get; set; } = 30;
+
+    // stream-up specific
+    public string? SCStreamUpServerSecs { get; set; } = "20-80";
+
+
+    public XHTTPMuxSettingsModel? Xmux { get; set; } = new(); // Initialize to allow easy UI binding
+}
+
+public class XHTTPMuxSettingsModel
+{
+    public string? MaxConcurrency { get; set; } = "16-32";
+
+    public string? MaxConnections { get; set; } = "0";
+
+    public string? CMaxReuseTimes { get; set; } = "0";
+
+    public string? HMaxRequestTimes { get; set; } = "600-900";
+
+    public string? HMaxReusableSecs { get; set; } = "1800-3000";
+
+    public int? HKeepAlivePeriod { get; set; } = 0;
 }
 
 public class VMessGlobal

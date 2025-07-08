@@ -209,35 +209,83 @@ public static class V2rayConfigUtils
                     {
                         address = await server.AutoResolveHostnameAsync(),
                         port = server.Port,
-                        method = "",
+                        method = "", // Trojan doesn't have 'method' in the same way as SS
                         password = trojan.Password,
-                        flow = trojan.TLSSecureType == "xtls" ? "xtls-rprx-direct" : ""
+                        flow = trojan.TLSSecureType == "xtls" && trojan.TransferProtocol != "http" ? "xtls-rprx-direct" : "" // flow only for non-http xtls
                     }
                 };
 
-                outbound.streamSettings = new StreamSettings
+                // Default stream settings for Trojan (direct TCP)
+                var streamSettings = new StreamSettings
                 {
-                    network = "tcp",
+                    network = "tcp", // Default, can be overridden by XHTTP settings
                     security = trojan.TLSSecureType
                 };
+
+                if (trojan.TransferProtocol == "http" && !string.IsNullOrEmpty(trojan.XHTTPMode) && trojan.XHTTPSpecificSettings != null)
+                {
+                    streamSettings.network = "http"; // Override network to http for XHTTP
+                    // Basic httpSettings (Xray might still need this for path/host if not in xhttpSettings fully)
+                    streamSettings.httpSettings = new HttpSettings
+                    {
+                        path = trojan.Path,
+                        host = trojan.Host.SplitOrDefault()
+                    };
+
+                    var xhttpSettings = new XHttpSettings
+                    {
+                        method = trojan.XHTTPMode.ToLowerInvariant() == "auto" ? null : trojan.XHTTPMode,
+                        path = trojan.Path,
+                        host = trojan.Host.SplitOrDefault(),
+                    };
+
+                    var specificSettings = trojan.XHTTPSpecificSettings;
+                    xhttpSettings.xPaddingBytes = specificSettings.PaddingBytes;
+                    if (specificSettings.NoGRPCHeader) xhttpSettings.noGRPCHeader = true;
+                    if (specificSettings.NoSSEHeader) xhttpSettings.noSSEHeader = true;
+                    xhttpSettings.scMaxEachPostBytes = specificSettings.SCMaxEachPostBytes;
+                    xhttpSettings.scMinPostsIntervalMs = specificSettings.SCMinPostsIntervalMs;
+                    xhttpSettings.scMaxBufferedPosts = specificSettings.SCMaxBufferedPosts;
+                    xhttpSettings.scStreamUpServerSecs = specificSettings.SCStreamUpServerSecs;
+
+                    if (specificSettings.Xmux != null)
+                    {
+                        xhttpSettings.xmux = new XMuxSettings
+                        {
+                            maxConcurrency = specificSettings.Xmux.MaxConcurrency,
+                            maxConnections = specificSettings.Xmux.MaxConnections,
+                            cMaxReuseTimes = specificSettings.Xmux.CMaxReuseTimes,
+                            hMaxRequestTimes = specificSettings.Xmux.HMaxRequestTimes,
+                            hMaxReusableSecs = specificSettings.Xmux.HMaxReusableSecs,
+                            hKeepAlivePeriod = specificSettings.Xmux.HKeepAlivePeriod
+                        };
+                    }
+                    streamSettings.xhttpSettings = xhttpSettings;
+                }
+
+                // Apply TLS/XTLS settings regardless of XHTTP, as XHTTP is a transport layer
                 if (trojan.TLSSecureType != "none")
                 {
                     var tlsSettings = new TlsSettings
                     {
                         allowInsecure = Global.Settings.V2RayConfig.AllowInsecure,
-                        serverName = trojan.Host ?? ""
+                        serverName = trojan.Host ?? "" // SNI is usually the Host for Trojan
                     };
 
                     switch (trojan.TLSSecureType)
                     {
                         case "tls":
-                            outbound.streamSettings.tlsSettings = tlsSettings;
+                            streamSettings.tlsSettings = tlsSettings;
                             break;
                         case "xtls":
-                            outbound.streamSettings.xtlsSettings = tlsSettings;
+                            streamSettings.xtlsSettings = tlsSettings;
+                            // XTLS flow is handled in `vnext` user settings for VLESS,
+                            // for Trojan, it's typically direct or via other means if not TCP.
+                            // If XHTTP is used, XTLS direct flow might not be applicable.
                             break;
                     }
                 }
+                outbound.streamSettings = streamSettings;
 
                 if (Global.Settings.V2RayConfig.TCPFastOpen)
                 {
@@ -411,6 +459,56 @@ public static class V2rayConfigUtils
                 };
 
                 break;
+
+            case "http": // Handling for XHTTP, note network is "http"
+                // Standard httpSettings for basic path/host if not using XHTTP enhancements
+                streamSettings.httpSettings = new HttpSettings
+                {
+                    host = server.Host.SplitOrDefault(),
+                    path = server.Path.ValueOrDefault()
+                };
+
+                // Populate xhttpSettings if XHTTPMode is specified
+                if (!string.IsNullOrEmpty(server.XHTTPMode) && server.XHTTPSpecificSettings != null)
+                {
+                    var xhttpSettings = new XHttpSettings
+                    {
+                        method = server.XHTTPMode.ToLowerInvariant() == "auto" ? null : server.XHTTPMode,
+                        path = server.Path.ValueOrDefault(), // Reuse server Path for XHTTP path
+                        host = server.Host.SplitOrDefault(), // Reuse server Host for XHTTP host
+                    };
+
+                    var specificSettings = server.XHTTPSpecificSettings;
+                    xhttpSettings.xPaddingBytes = specificSettings.PaddingBytes;
+
+                    if (specificSettings.NoGRPCHeader)
+                        xhttpSettings.noGRPCHeader = true;
+
+                    if (specificSettings.NoSSEHeader)
+                        xhttpSettings.noSSEHeader = true;
+
+                    xhttpSettings.scMaxEachPostBytes = specificSettings.SCMaxEachPostBytes;
+                    xhttpSettings.scMinPostsIntervalMs = specificSettings.SCMinPostsIntervalMs;
+                    xhttpSettings.scMaxBufferedPosts = specificSettings.SCMaxBufferedPosts;
+                    xhttpSettings.scStreamUpServerSecs = specificSettings.SCStreamUpServerSecs;
+
+
+                    if (specificSettings.Xmux != null)
+                    {
+                        xhttpSettings.xmux = new XMuxSettings
+                        {
+                            maxConcurrency = specificSettings.Xmux.MaxConcurrency,
+                            maxConnections = specificSettings.Xmux.MaxConnections,
+                            cMaxReuseTimes = specificSettings.Xmux.CMaxReuseTimes,
+                            hMaxRequestTimes = specificSettings.Xmux.HMaxRequestTimes,
+                            hMaxReusableSecs = specificSettings.Xmux.HMaxReusableSecs,
+                            hKeepAlivePeriod = specificSettings.Xmux.HKeepAlivePeriod
+                        };
+                    }
+                    streamSettings.xhttpSettings = xhttpSettings;
+                }
+                break;
+
             default:
                 throw new MessageException($"transfer protocol \"{server.TransferProtocol}\" not implemented yet");
         }
