@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -55,9 +55,10 @@ public static class PortHelper
 
                         if (row.dwOwningPid is 0 or 4)
                             continue;
-
+#pragma warning disable CA1416
                         if (PInvoke.ntohs((ushort)row.dwLocalPort) == port)
                             process.Add(Process.GetProcessById((int)row.dwOwningPid));
+#pragma warning restore CA1416
                     }
                 }
 
