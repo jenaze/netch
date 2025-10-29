@@ -6,9 +6,9 @@ using Netch.Models;
 
 namespace Netch.Servers;
 
-public class V2rayController : Guard, IServerController
+public class XrayController : Guard, IServerController
 {
-    public V2rayController() : base("v2ray-sn.exe")
+    public XrayController() : base("xray.exe")
     {
         //if (!Global.Settings.V2RayConfig.XrayCone)
         //    Instance.StartInfo.Environment["XRAY_CONE_DISABLED"] = "true";
@@ -18,7 +18,7 @@ public class V2rayController : Guard, IServerController
 
     protected override IEnumerable<string> FailedKeywords => new[] { "config file not readable", "failed to" };
 
-    public override string Name => "V2Ray (SagerNet)";
+    public override string Name => "Xray";
 
     public ushort? Socks5LocalPort { get; set; }
 
