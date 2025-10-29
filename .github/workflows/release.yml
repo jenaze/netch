@@ -3,7 +3,8 @@ on:
   push:
     tags:
       - '*.*.*'
-
+  # Enables manual running of the workflow via the GitHub Actions UI.
+  workflow_dispatch:
 jobs:
   build:
     name: Build
@@ -106,3 +107,4 @@ jobs:
             | 文件名 | SHA256 |
             | :- | :- |
             | Netch.7z | ${{ env.Netch_SHA256 }} |
+
