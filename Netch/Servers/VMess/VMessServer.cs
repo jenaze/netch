@@ -137,7 +137,8 @@ public class VMessGlobal
         "ws",
         "h2",
         "quic",
-        "grpc"
+        "grpc",
+        "xhttp"
     };
 
     /// <summary>
