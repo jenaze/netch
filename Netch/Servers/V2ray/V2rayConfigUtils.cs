@@ -300,7 +300,7 @@ public static class V2rayConfigUtils
 
         var streamSettings = new StreamSettings
         {
-            network = server.TransferProtocol,
+            network = server.TransferProtocol == "xhttp" ? "http" : server.TransferProtocol,
             security = server.TLSSecureType
         };
 
@@ -381,7 +381,7 @@ public static class V2rayConfigUtils
 
                 break;
             case "h2":
-
+            case "xhttp":
                 streamSettings.httpSettings = new HttpSettings
                 {
                     host = server.Host.SplitOrDefault(),
