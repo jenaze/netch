@@ -118,6 +118,8 @@ public class StreamSettings
 
     public HttpSettings httpSettings { get; set; }
 
+    public HttpSettings xhttpSettings { get; set; }
+
     public QuicSettings quicSettings { get; set; }
 
     public TlsSettings xtlsSettings { get; set; }
