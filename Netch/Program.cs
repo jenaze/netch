@@ -70,6 +70,12 @@ public static class Program
             return;
         }
 
+    if (args.Length > 0 && args[0].StartsWith("netch://import/"))
+    {
+        ImportSubscriptionLink(args[0]);
+        return;
+    }
+
         SingleInstance.Received.Subscribe(SingleInstance_ArgumentsReceived);
 
         // clean up old logs
@@ -209,5 +215,22 @@ public static class Program
         }
 
         endFunc(string.Empty);
+    }
+
+    private static void ImportSubscriptionLink(string argument)
+    {
+        var url = argument.Substring(16);
+        var remark = url.Split('#').Length > 1 ? url.Split('#')[1] : url;
+        url = url.Split('#')[0];
+
+        if (Global.Settings.Subscription.All(s => s.Remark != remark))
+        {
+            Global.Settings.Subscription.Add(new Models.Subscription
+            {
+                Remark = remark,
+                Link = url
+            });
+            Configuration.Save();
+        }
     }
 }

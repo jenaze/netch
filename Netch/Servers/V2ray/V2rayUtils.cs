@@ -37,6 +37,7 @@ public static class V2rayUtils
                     server.Host = Uri.UnescapeDataString(parameter.Get("host") ?? "");
                     break;
                 case "h2":
+                case "xhttp":
                     server.Path = Uri.UnescapeDataString(parameter.Get("path") ?? "/");
                     server.Host = Uri.UnescapeDataString(parameter.Get("host") ?? "");
                     break;
@@ -100,6 +101,7 @@ public static class V2rayUtils
 
                 break;
             case "h2":
+            case "xhttp":
                 parameter.Add("path", Uri.EscapeDataString(server.Path.ValueOrDefault() ?? "/"));
                 if (!server.Host.IsNullOrWhiteSpace())
                     parameter.Add("host", Uri.EscapeDataString(server.Host!));

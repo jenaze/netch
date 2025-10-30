@@ -381,13 +381,18 @@ public static class V2rayConfigUtils
 
                 break;
             case "h2":
-
                 streamSettings.httpSettings = new HttpSettings
                 {
                     host = server.Host.SplitOrDefault(),
                     path = server.Path.ValueOrDefault()
                 };
-
+                break;
+            case "xhttp":
+                streamSettings.xhttpSettings = new XhttpSettings
+                {
+                    host = server.Host.SplitOrDefault()?[0],
+                    path = server.Path.ValueOrDefault()
+                };
                 break;
             case "quic":
 
