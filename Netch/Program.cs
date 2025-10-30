@@ -230,7 +230,7 @@ public static class Program
                 Remark = remark,
                 Link = url
             });
-            Configuration.Save();
+            Configuration.SaveAsync().Wait();
         }
     }
 }
