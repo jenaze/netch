@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net;
 using Netch.Models;
 using Netch.Servers;
@@ -36,7 +36,7 @@ public static class Socks5ServerTestUtils
         }
 
         using IUdpProxy proxy = ProxyFactory.CreateProxy(ProxyType.Socks5, new IPEndPoint(IPAddress.Loopback, 0), socks5Option);
-        using var client = new StunClient5389UDP(new IPEndPoint(ip, port), local, proxy, false);
+        using var client = new StunClient5389UDP(new IPEndPoint(ip, port), local, proxy);
 
         await client.ConnectProxyAsync(ctx);
         try
@@ -49,6 +49,17 @@ public static class Socks5ServerTestUtils
         }
 
         var res = client.State;
+
+        if (res.BindingTestResult == BindingTestResult.UnsupportedServer)
+        {
+            var _res = await client.BindingTestAsync();
+            if (_res.PublicEndPoint is not null)
+            {
+                res.PublicEndPoint = _res.PublicEndPoint;
+                res.BindingTestResult = BindingTestResult.Success;
+            }
+        }
+
         var result = GetSimpleResult(res);
 
         return new NatTypeTestResult
@@ -61,6 +72,11 @@ public static class Socks5ServerTestUtils
 
     private static string GetSimpleResult(StunResult5389 res)
     {
+        if (res.BindingTestResult == BindingTestResult.UnsupportedServer)
+        {
+            return "Unsupported Server";
+        }
+
         switch (res.BindingTestResult, res.MappingBehavior, res.FilteringBehavior)
         {
             case (BindingTestResult.Fail, _, _):
