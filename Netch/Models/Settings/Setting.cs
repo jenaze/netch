@@ -119,12 +119,12 @@ public class Setting
     /// <summary>
     ///     STUN测试服务器
     /// </summary>
-    public string STUN_Server { get; set; } = "stun.syncthing.net";
+    public string STUN_Server { get; set; } = "stun.l.google.com";
 
     /// <summary>
     ///     STUN测试服务器
     /// </summary>
-    public int STUN_Server_Port { get; set; } = 3478;
+    public int STUN_Server_Port { get; set; } = 19302;
 
     /// <summary>
     ///     订阅链接列表

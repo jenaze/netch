@@ -36,7 +36,7 @@ public static class Socks5ServerTestUtils
         }
 
         using IUdpProxy proxy = ProxyFactory.CreateProxy(ProxyType.Socks5, new IPEndPoint(IPAddress.Loopback, 0), socks5Option);
-        using var client = new StunClient5389UDP(new IPEndPoint(ip, port), local, proxy);
+        using var client = new StunClient5389UDP(new IPEndPoint(ip, port), local, proxy, false);
 
         await client.ConnectProxyAsync(ctx);
         try
