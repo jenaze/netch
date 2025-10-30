@@ -388,9 +388,9 @@ public static class V2rayConfigUtils
                 };
                 break;
             case "xhttp":
-                streamSettings.xhttpSettings = new HttpSettings
+                streamSettings.xhttpSettings = new XhttpSettings
                 {
-                    host = server.Host.SplitOrDefault(),
+                    host = server.Host.SplitOrDefault()?[0],
                     path = server.Path.ValueOrDefault()
                 };
                 break;
