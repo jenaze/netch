@@ -1,6 +1,9 @@
 name: Netch Build CI
-on: [push, pull_request]
-workflow_dispatch:
+on:
+  push:
+  pull_request:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 jobs:
   build:
     name: Build
@@ -87,4 +90,5 @@ jobs:
         with:
           name: release
           path: release
+
 
