@@ -3,8 +3,7 @@ on:
   push:
     tags:
       - '*.*.*'
-  # Enables manual running of the workflow via the GitHub Actions UI.
-  workflow_dispatch:
+
 jobs:
   build:
     name: Build
